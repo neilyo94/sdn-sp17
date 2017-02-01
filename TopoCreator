@@ -9,6 +9,7 @@ from mininet.cli import CLI
 
 class SimpleDBTopo(Topo):
     "Single switch connected to 4 hosts."
+    def build(self, n):
     #   (1)-1-\             /--3---(3)
     #          |-n+1--n+2-|
     #   (2)-2-/             \--4---(4)
@@ -26,7 +27,7 @@ class SimpleDBTopo(Topo):
         rightupSwitch = self.addSwitch( 's5' )
         rightdownSwitch = self.addSwitch( 's6' )
 
-        Add links
+        #Add links
         self.addLink( leftHost1, leftupSwitch )
         self.addLink( leftHost2, leftdownSwitch )
         self.addLink( leftupSwitch, leftSwitch )
@@ -83,43 +84,45 @@ class SingleBridgeTopo(Topo):
 
 class SingleRingTopo(Topo):
     "Single switch-ring connected to n hosts."
+    def build(self, n):
 
-    if n == 0:
-            print "error"
-        hostList = [None] * n
-        switchList = [None] * n
+        if n == 0:
+                print "error"
+            hostList = [None] * n
+            switchList = [None] * n
 
-    for x in range(0,n):
-        numString = str(x)
-        hostList[x] = self.addHost( 'h'+numString )
+        for x in range(0,n):
+            numString = str(x)
+            hostList[x] = self.addHost( 'h'+numString )
 
 
-    for x in range(0,n):
-        numString = str(x)
-        switchList[x] = self.addHost( 's'+numString )
-        self.addLink( hostList[x], switchList[x] )
+        for x in range(0,n):
+            numString = str(x)
+            switchList[x] = self.addHost( 's'+numString )
+            self.addLink( hostList[x], switchList[x] )
 
-    for x in range(0,n):
-        self.addLink( switchList[x], switchList[(x+1)%n] )
+        for x in range(0,n):
+            self.addLink( switchList[x], switchList[(x+1)%n] )
 
 
 class BinaryTreeTopo(Topo):
-    if n == 0:
-            print "error"
-        hostList = [None] * n
-        switchList = [None] * n
+    def build(self, n):
+        if n == 0:
+                print "error"
+            hostList = [None] * n
+            switchList = [None] * n
 
-    for x in range(0,n):
-        numString = str(x)
-        hostList[x] = self.addHost( 'h'+numString )
+        for x in range(0,n):
+            numString = str(x)
+            hostList[x] = self.addHost( 'h'+numString )
 
-    for x in range(0,n):
-        numString = str(x)
-        switchList[x] = self.addHost( 's'+numString )
-        self.addLink( hostList[x], switchList[x-1-(x/2)] )
+        for x in range(0,n):
+            numString = str(x)
+            switchList[x] = self.addHost( 's'+numString )
+            self.addLink( hostList[x], switchList[x-1-(x/2)] )
 
-    for x in range (1,n):
-        self.addLink( switchList[x], switchList[x/2] )
+        for x in range (1,n):
+            self.addLink( switchList[x], switchList[x/2] )
 
 
 ###############################

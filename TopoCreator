@@ -87,7 +87,7 @@ class SingleRingTopo(Topo):
     def build(self, n):
 
         if n == 0:
-                print "error"
+            print "error"
             hostList = [None] * n
             switchList = [None] * n
 
@@ -108,7 +108,7 @@ class SingleRingTopo(Topo):
 class BinaryTreeTopo(Topo):
     def build(self, n):
         if n == 0:
-                print "error"
+            print "error"
             hostList = [None] * n
             switchList = [None] * n
 

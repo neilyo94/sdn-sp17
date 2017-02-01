@@ -6,16 +6,54 @@ from functools import partial
 from mininet.cli import CLI
 
 
+
+class SimpleDBTopo(Topo):
+    "Single switch connected to 4 hosts."
+    #   (1)-1-\             /--3---(3)
+    #          |-n+1--n+2-|
+    #   (2)-2-/             \--4---(4)
+    #
+    #       .......................
+    # Add hosts and switches
+        leftHost1 = self.addHost( 'h1' )
+        leftHost2 = self.addHost( 'h2' )
+        rightHost1 = self.addHost( 'h3' )
+        rightHost2 = self.addHost( 'h4' )
+        leftupSwitch = self.addSwitch( 's1' )
+        leftdownSwitch = self.addSwitch( 's2' )
+        leftSwitch = self.addSwitch( 's3' )
+        rightSwitch = self.addSwitch( 's4' )
+        rightupSwitch = self.addSwitch( 's5' )
+        rightdownSwitch = self.addSwitch( 's6' )
+
+        Add links
+        self.addLink( leftHost1, leftupSwitch )
+        self.addLink( leftHost2, leftdownSwitch )
+        self.addLink( leftupSwitch, leftSwitch )
+        self.addLink( leftdownSwitch, leftSwitch )
+
+        self.addLink( rightHost1, rightupSwitch )
+        self.addLink( rightHost2, rightdownSwitch )
+        self.addLink( rightupSwitch, rightSwitch )
+        self.addLink( rightdownSwitch, rightSwitch )
+
+        self.addLink( leftSwitch, rightSwitch )
+
+
 class SingleBridgeTopo(Topo):
     "Single switch connected to n hosts."
     def build(self, n):
 
 
-    #   (1)-1-\             /-n-1-(n-1)
+    #   (1)-1-\             /--n----(n)
     #          |-n+1--n+2-|
-    #   (2)-2-/             \- n---(n)
+    #   (2)-2-/             \-n-1--(n-1)
     #
-    #       .......................
+    #       ..                  ..
+    #       ..                  ..
+    #       ..                  ..
+    #       ..                  ..
+    #       ..                  ..
     # Add hosts and switches
 
         if n == 0:
@@ -25,12 +63,12 @@ class SingleBridgeTopo(Topo):
 
 
         for x in range(0,n):
-            numString = x.toString()
+            numString = str(x)
             hostList[x] = self.addHost( 'h'+numString )
 
 
         for x in range(0,n):
-            numString = x.toString()
+            numString = str(x)
             switchList[x] = self.addHost( 's'+numString )
 
         for x in range(0,n):
@@ -43,32 +81,45 @@ class SingleBridgeTopo(Topo):
         self.addLink( switchList[n], switchList[n+1] )
 
 
+class SingleRingTopo(Topo):
+    "Single switch-ring connected to n hosts."
 
-        # leftHost1 = self.addHost( 'h1' )
-        # leftHost2 = self.addHost( 'h2' )
-        # rightHost1 = self.addHost( 'h3' )
-        # rightHost2 = self.addHost( 'h4' )
-        # leftupSwitch = self.addSwitch( 's1' )
-        # leftdownSwitch = self.addSwitch( 's2' )
-        # leftSwitch = self.addSwitch( 's3' )
-        # rightSwitch = self.addSwitch( 's4' )
-        # rightupSwitch = self.addSwitch( 's5' )
-        # rightdownSwitch = self.addSwitch( 's6' )
+    if n == 0:
+            print "error"
+        hostList = [None] * n
+        switchList = [None] * n
 
-        # Add links
-        # self.addLink( leftHost1, leftupSwitch )
-        # self.addLink( leftHost2, leftdownSwitch )
-        # self.addLink( leftupSwitch, leftSwitch )
-        # self.addLink( leftdownSwitch, leftSwitch )
-
-        # self.addLink( rightHost1, rightupSwitch )
-        # self.addLink( rightHost2, rightdownSwitch )
-        # self.addLink( rightupSwitch, rightSwitch )
-        # self.addLink( rightdownSwitch, rightSwitch )
-
-        # self.addLink( leftSwitch, rightSwitch )
+    for x in range(0,n):
+        numString = str(x)
+        hostList[x] = self.addHost( 'h'+numString )
 
 
+    for x in range(0,n):
+        numString = str(x)
+        switchList[x] = self.addHost( 's'+numString )
+        self.addLink( hostList[x], switchList[x] )
+
+    for x in range(0,n):
+        self.addLink( switchList[x], switchList[(x+1)%n] )
+
+
+class BinaryTreeTopo(Topo):
+    if n == 0:
+            print "error"
+        hostList = [None] * n
+        switchList = [None] * n
+
+    for x in range(0,n):
+        numString = str(x)
+        hostList[x] = self.addHost( 'h'+numString )
+
+    for x in range(0,n):
+        numString = str(x)
+        switchList[x] = self.addHost( 's'+numString )
+        self.addLink( hostList[x], switchList[x-1-(x/2)] )
+
+    for x in range (1,n):
+        self.addLink( switchList[x], switchList[x/2] )
 
 
 ###############################
@@ -76,14 +127,14 @@ class SingleBridgeTopo(Topo):
 def simpleTest():
     "Create and test a simple network"
     topo = SingleBridgeTopo(n=4)
-    #net = Mininet(topo)
-    net = Mininet(topo, controller=partial( RemoteController, ip='127.0.0.1', port=6633 ) )
+    net = Mininet(topo)
+    #net = Mininet(topo, controller=partial( RemoteController, ip='127.0.0.1', port=6633 ) )
     net.start()
     CLI(net)
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
     print "Testing network connectivity"
-    net.pingAll()
+    #net.pingAll()
     #net.stop()
 
 if __name__ == '__main__':

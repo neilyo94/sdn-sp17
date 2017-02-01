@@ -1,0 +1,94 @@
+from mininet.topo import Topo
+from mininet.net import Mininet
+from mininet.util import dumpNodeConnections
+from mininet.log import setLogLevel
+from functools import partial
+from mininet.cli import CLI
+
+
+class SingleBridgeTopo(Topo):
+    "Single switch connected to n hosts."
+    def build(self, n):
+
+
+    #   (1)-1-\             /-n-1-(n-1)
+    #          |-n+1--n+2-|
+    #   (2)-2-/             \- n---(n)
+    #
+    #       .......................
+    # Add hosts and switches
+
+        if n == 0:
+            print "error"
+        hostList = [None] * n
+        switchList = [None] * (n+2)
+
+
+        for x in range(0,n):
+            numString = x.toString()
+            hostList[x] = self.addHost( 'h'+numString )
+
+
+        for x in range(0,n):
+            numString = x.toString()
+            switchList[x] = self.addHost( 's'+numString )
+
+        for x in range(0,n):
+            self.addLink( hostList[x], switchList[x] )
+            if x < n/2:
+                self.addLink( switchList[x], switchList[n] )
+            else:
+                self.addLink( switchList[x], switchList[n+1] )
+
+        self.addLink( switchList[n], switchList[n+1] )
+
+
+
+        # leftHost1 = self.addHost( 'h1' )
+        # leftHost2 = self.addHost( 'h2' )
+        # rightHost1 = self.addHost( 'h3' )
+        # rightHost2 = self.addHost( 'h4' )
+        # leftupSwitch = self.addSwitch( 's1' )
+        # leftdownSwitch = self.addSwitch( 's2' )
+        # leftSwitch = self.addSwitch( 's3' )
+        # rightSwitch = self.addSwitch( 's4' )
+        # rightupSwitch = self.addSwitch( 's5' )
+        # rightdownSwitch = self.addSwitch( 's6' )
+
+        # Add links
+        # self.addLink( leftHost1, leftupSwitch )
+        # self.addLink( leftHost2, leftdownSwitch )
+        # self.addLink( leftupSwitch, leftSwitch )
+        # self.addLink( leftdownSwitch, leftSwitch )
+
+        # self.addLink( rightHost1, rightupSwitch )
+        # self.addLink( rightHost2, rightdownSwitch )
+        # self.addLink( rightupSwitch, rightSwitch )
+        # self.addLink( rightdownSwitch, rightSwitch )
+
+        # self.addLink( leftSwitch, rightSwitch )
+
+
+
+
+###############################
+
+def simpleTest():
+    "Create and test a simple network"
+    topo = SingleBridgeTopo(n=4)
+    #net = Mininet(topo)
+    net = Mininet(topo, controller=partial( RemoteController, ip='127.0.0.1', port=6633 ) )
+    net.start()
+    CLI(net)
+    print "Dumping host connections"
+    dumpNodeConnections(net.hosts)
+    print "Testing network connectivity"
+    net.pingAll()
+    #net.stop()
+
+if __name__ == '__main__':
+    # Tell mininet to print useful information
+    setLogLevel('info')
+    simpleTest()
+
+
